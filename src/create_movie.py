@@ -17,10 +17,10 @@ def create_movie(voice=None):
     duration = sum(duration_clips)
 
     # 背景音乐
-    bg_music = AudioFileClip("../bgm/HappyUkulele.mp3").set_duration(duration).volumex(0.3)
+    bg_music = AudioFileClip("../bgm/Brian_Crain_-_Song_for_Sienna_Over_(getmp3.pro).mp3").set_duration(duration).volumex(0.3)
 
     # 解说 + 字幕
-    voice_clips, txt_clips = [], []
+    voice_clips  = [] 
 
     for idx, item in enumerate(text_clips):
         start = sum(duration_clips[:idx])
@@ -28,10 +28,10 @@ def create_movie(voice=None):
         voice_clips.append(
              AudioFileClip(voice[idx]).set_start(start).volumex(0.8))
         
-        txt_clip = TextClip(text_clips[idx], fontsize=40, color='white')
-        #txt_clip = txt_clip.set_pos('bottom').set_duration(duration_clips[idx]).crossfadein(1).crossfadeout(1)
-        txt_clip = txt_clip.set_start(start).set_end(end)
-        txt_clips.append(txt_clip)
+        # txt_clip = TextClip(text_clips[idx], fontsize=40, color='white')
+        # #txt_clip = txt_clip.set_pos('bottom').set_duration(duration_clips[idx]).crossfadein(1).crossfadeout(1)
+        # txt_clip = txt_clip.set_start(start).set_end(end)
+        # txt_clips.append(txt_clip)
         
 
     picture_path = '../pictures'
@@ -52,25 +52,30 @@ def create_movie(voice=None):
         return 1 + 0.005 * t
 
     # screensize = (640, 360)
-    for image_path in grab_files('../pictures'):
+    for idx, image_path in enumerate(grab_files('../pictures')):
         image_clip = ImageClip(image_path).set_duration(image_duration).resize(resize_func).set_position(
             ('center', 'center')).set_fps(25)
-        image_clip = image_clip.crossfadein(1).crossfadeout(1)
+        if idx > 0:  # 第一张图片不添加淡入效果
+            image_clip = image_clip.crossfadein(1)  # 添加淡入效果
+        if idx < image_num - 1:  # 添加淡出效果到倒数第二张图片
+            image_clip = image_clip.crossfadeout(1)
         image_clips.append(image_clip)
 
-        # image_clips.append(ImageClip('path_to_image.jpg').resize(resize_func).set_position(('center', 'center')).set_duration(image_duration).set_fps(25))
-    return [image_clips, txt_clips, bg_music, voice_clips]
+    # 最后一张图片不添加淡出效果
+    image_clips[-1] = image_clips[-1].set_duration(image_duration)  # Remove fadeout effect
+
+    return [image_clips, bg_music, voice_clips]
 
 
-def combine(image_clips, txt_clips, bg_music, voice_clips):
+def combine(image_clips, bg_music, voice_clips):
     # 将所有图片剪辑合并为一个剪辑
     
     image_clip = concatenate_videoclips(image_clips)
 
     # 将图像、字幕和音频剪辑合并为一个剪辑，并添加淡入淡出效果
     #video_clip = CompositeVideoClip([image_clip])
-    txt_clips = [CompositeVideoClip([clip]) for clip in txt_clips]  # Ensuring txt_clips is a list of CompositeVideoClip objects
-    video_clip = CompositeVideoClip([image_clip] + txt_clips)
+    # txt_clips = [CompositeVideoClip([clip]) for clip in txt_clips]  # Ensuring txt_clips is a list of CompositeVideoClip objects
+    video_clip = CompositeVideoClip([image_clip])
     audio_clip = CompositeAudioClip([bg_music] + voice_clips)
     video_clip = video_clip.set_audio(audio_clip)
     video_clip = video_clip.crossfadein(1).crossfadeout(1)

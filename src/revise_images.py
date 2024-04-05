@@ -3,12 +3,12 @@ from PIL import Image
 def revise_images(image_path):
     # 打开图片
     image = Image.open(image_path)
-    width = 787 #1400  # 固定宽度
-    height = 1400 #787  # 固定高度
+    width = 16 * 70  # 固定宽度，假设高度为70个单位
+    height = 9 * 70  # 固定高度，假设宽度为70个单位
 
     # 计算缩放比例
     original_width, original_height = image.size
-    scale = min(width / original_width, height / original_height)
+    scale = max(width / original_width, height / original_height)
 
     # 计算缩放后的大小
     new_width = int(original_width * scale)
@@ -29,3 +29,6 @@ def revise_images(image_path):
 
     # 保存图片
     canvas.save(image_path)
+
+# Example usage:
+# revise_images("your_image.jpg")

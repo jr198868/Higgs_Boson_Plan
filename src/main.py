@@ -13,6 +13,6 @@ if __name__ == "__main__":
                 os.remove(os.path.join(root, file))
 
     # Create the movie using the generated voice files
-    image_clips, txt_clips, bg_music, voice_clips = create_movie(voice)
+    image_clips, bg_music, voice_clips = create_movie(voice)
 
-    combine(image_clips, txt_clips, bg_music, voice_clips)
+    combine(image_clips, bg_music, voice_clips)
